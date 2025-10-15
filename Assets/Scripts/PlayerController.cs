@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
 
         if (gameManager != null)
         {
-            //gameManager.ReloadLevel();
+            gameManager.LoseGame();
         }
     }
 
@@ -107,10 +107,13 @@ public class PlayerController : MonoBehaviour
             }
             Destroy(other.gameObject);
         }
-        else if (other.CompareTag("Castle"))
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Castle"))
         {
             gameManager.WinGame();
+            Debug.Log("Win");
         }
     }
-
 }

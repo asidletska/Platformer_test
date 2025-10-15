@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
 
     public void OnPlayButtonPressed()
     {
-        mainMenuPanel.SetActive(false);
         StartCoroutine(StartGameCoroutine());
     }
 
@@ -56,17 +55,18 @@ public class GameManager : MonoBehaviour
 
         if (introAnimator != null)
         {
-            introAnimator.SetTrigger("PlayIntro");
+            introAnimator.SetTrigger("Play");
             yield return new WaitForSeconds(introDuration);
         }
         else
         {
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(2f);
         }
 
         if (playerController != null)
             playerController.enabled = true;
 
+        mainMenuPanel.SetActive(false);
         isGameActive = true;
     }
 
@@ -86,16 +86,20 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(2f);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-
-    public void WinGame()
+    private IEnumerator WinCoroutine()
     {
-        if (!isGameActive) return;
         isGameActive = false;
 
         if (playerController != null)
             playerController.enabled = false;
 
-        winPanel?.SetActive(true);
+        winPanel.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public void WinGame()
+    {
+        StartCoroutine(WinCoroutine());
     }
 
     public bool IsGameActive()
