@@ -21,16 +21,20 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     [System.Obsolete]
     private void Update()
     {
+        if (gameManager != null && !gameManager.IsGameActive())
+            return;
+
         if (isDead)
         {
-            if (rb.linearVelocity != Vector2.zero)
+            if (rb.velocity != Vector2.zero)
             {
-                rb.linearVelocity = Vector2.zero;
+                rb.velocity = Vector2.zero;
             }
             return;
         }
@@ -38,11 +42,11 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
 
         moveInput = Input.GetAxisRaw("Horizontal");
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
 
         if (moveInput > 0)
@@ -72,6 +76,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Spikes"))
         {
+            anim.SetInteger("playerState", 3);
             Die();
         }
     }
@@ -81,14 +86,14 @@ public class PlayerController : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
-        rb.linearVelocity = Vector2.zero;
+        rb.velocity = Vector2.zero;
         rb.isKinematic = true;
 
         anim.SetInteger("playerState", 3);
 
         if (gameManager != null)
         {
-            gameManager.ReloadLevel();
+            //gameManager.ReloadLevel();
         }
     }
 
@@ -101,6 +106,10 @@ public class PlayerController : MonoBehaviour
                 gameManager.coins += 1;
             }
             Destroy(other.gameObject);
+        }
+        else if (other.CompareTag("Castle"))
+        {
+            gameManager.WinGame();
         }
     }
 
